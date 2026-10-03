@@ -1,0 +1,15 @@
+{
+  "name": "demo-target",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tiny order-cancellation codebase used as the target of the issue workflow.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

@@ -1,0 +1,133 @@
+<header class="topbar">
+  <div class="topbar__inner">
+    <div>
+      <p class="eyebrow">Issue-to-implementation workflow</p>
+      <h1>Workflow dashboard</h1>
+    </div>
+    @if (state(); as s) {
+      @if (s.kind === 'ready') {
+        <span [class]="chipClass(s.summary.status)" data-testid="workflow-status">
+          {{ label(s.summary.status) }}
+        </span>
+      }
+    }
+  </div>
+</header>
+
+<main class="page">
+  @if (state(); as s) {
+    @if (s.kind === 'loading') {
+      <p class="notice" role="status">Loading workflow summary…</p>
+    } @else if (s.kind === 'error') {
+      <p class="notice notice--error" role="alert">
+        Could not load the workflow summary. Is the backend running on port 3000?
+      </p>
+    } @else {
+      @let wf = s.summary;
+      <p class="banner">
+        Phase 1 seed data (<code>{{ wf.source }}</code>). Nothing below has been executed yet.
+      </p>
+
+      <div class="grid">
+        <section class="card" aria-labelledby="repo-h">
+          <h2 id="repo-h">Repository</h2>
+          <dl class="facts">
+            <dt>Name</dt>
+            <dd>{{ wf.repository.name }}</dd>
+            <dt>Path</dt>
+            <dd><code>{{ wf.repository.path }}</code></dd>
+            <dt>Language</dt>
+            <dd>{{ wf.repository.language }}</dd>
+            <dt>Branch</dt>
+            <dd>{{ wf.repository.defaultBranch }}</dd>
+          </dl>
+          <p class="muted">{{ wf.repository.description }}</p>
+        </section>
+
+        <section class="card" aria-labelledby="issue-h">
+          <h2 id="issue-h">Issue</h2>
+          <p class="issue-title">
+            <span class="issue-number">#{{ wf.issue.number }}</span> {{ wf.issue.title }}
+          </p>
+          <p class="muted">{{ wf.issue.body }}</p>
+          <div class="chips">
+            <span [class]="chipClass(wf.issue.state)">{{ wf.issue.state }}</span>
+            @for (tag of wf.issue.labels; track tag) {
+              <span class="chip chip--label">{{ tag }}</span>
+            }
+          </div>
+        </section>
+
+        <section class="card card--wide" aria-labelledby="analysis-h">
+          <h2 id="analysis-h">Analysis</h2>
+          <p>{{ wf.analysis.summary }}</p>
+          <ul class="list">
+            @for (finding of wf.analysis.findings; track finding.file + finding.symbol) {
+              <li>
+                <code>{{ finding.file }}</code> · <strong>{{ finding.symbol }}</strong>
+                <span class="muted block">{{ finding.note }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="card" aria-labelledby="plan-h">
+          <h2 id="plan-h">Implementation Plan</h2>
+          <ol class="list list--steps">
+            @for (step of wf.plan; track step.order) {
+              <li>
+                <div class="row">
+                  <strong>{{ step.title }}</strong>
+                  <span [class]="chipClass(step.status)">{{ step.status }}</span>
+                </div>
+                <span class="muted block">{{ step.detail }}</span>
+              </li>
+            }
+          </ol>
+        </section>
+
+        <section class="card" aria-labelledby="files-h">
+          <h2 id="files-h">Files Changed</h2>
+          <ul class="list">
+            @for (file of wf.filesChanged; track file.path) {
+              <li>
+                <div class="row">
+                  <code>{{ file.path }}</code>
+                  <span [class]="chipClass(file.status)">{{ file.status }}</span>
+                </div>
+                <span class="muted block">{{ file.reason }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="card" aria-labelledby="tests-h">
+          <h2 id="tests-h">Test Results</h2>
+          <div class="row">
+            <code>{{ wf.testResults.command }}</code>
+            <span [class]="chipClass(wf.testResults.status)">
+              {{ label(wf.testResults.status) }}
+            </span>
+          </div>
+          <p class="muted">{{ wf.testResults.note }}</p>
+        </section>
+
+        <section class="card" aria-labelledby="verify-h">
+          <h2 id="verify-h">Verification Report</h2>
+          <div class="row">
+            <span class="muted">{{ wf.verification.summary }}</span>
+            <span [class]="chipClass(wf.verification.status)">{{ wf.verification.status }}</span>
+          </div>
+          <ul class="list">
+            @for (check of wf.verification.checks; track check.orderStatus) {
+              <li class="row">
+                <span><code>{{ check.orderStatus }}</code> → cancel {{ check.expected.toLowerCase() }}</span>
+                <span [class]="chipClass(check.status)">{{ check.status }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  }
+</main>
