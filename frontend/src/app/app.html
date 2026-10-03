@@ -24,8 +24,17 @@
       </p>
     } @else {
       @let wf = s.summary;
-      <p class="banner">
-        Phase 1 seed data (<code>{{ wf.source }}</code>). Nothing below has been executed yet.
+      <p class="banner" data-testid="source-banner">
+        @if (wf.source === 'GITHUB') {
+          Issue loaded from GitHub (<code>{{ wf.source }}</code>). Analysis, plan, files and
+          verification are still seeded, and nothing below has been executed yet.
+        } @else {
+          GitHub issue unavailable, showing seed data (<code>{{ wf.source }}</code>).
+          @if (wf.ingestionError) {
+            {{ wf.ingestionError }}.
+          }
+          Nothing below has been executed yet.
+        }
       </p>
 
       <div class="grid">

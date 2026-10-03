@@ -66,7 +66,10 @@ export interface VerificationReport {
 export interface WorkflowSummary {
   id: string;
   status: WorkflowStatus;
-  source: 'SEED';
+  // GITHUB: the issue block came from the GitHub API. SEED: it is the seeded fallback.
+  source: 'SEED' | 'GITHUB';
+  // Set only when ingestion failed and the seeded issue is being served instead.
+  ingestionError?: string;
   repository: RepositoryInfo;
   issue: IssueInfo;
   analysis: AnalysisInfo;

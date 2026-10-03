@@ -1,5 +1,5 @@
 import express, { type Express, type Request, type Response } from 'express';
-import { workflowSeed } from './workflow/workflow.seed';
+import { getWorkflowSummary, type IssueLoader } from './workflow/workflow.service';
 import type { WorkflowSummary } from './workflow/workflow.types';
 
 export interface HealthResponse {
@@ -7,7 +7,11 @@ export interface HealthResponse {
   service: string;
 }
 
-export function createApp(): Express {
+export interface AppDependencies {
+  loadIssue: IssueLoader;
+}
+
+export function createApp({ loadIssue }: AppDependencies): Express {
   const app = express();
   app.disable('x-powered-by');
 
@@ -15,8 +19,8 @@ export function createApp(): Express {
     res.json({ status: 'ok', service: 'issue-workflow-backend' });
   });
 
-  app.get('/api/workflow-summary', (_req: Request, res: Response<WorkflowSummary>) => {
-    res.json(workflowSeed);
+  app.get('/api/workflow-summary', async (_req: Request, res: Response<WorkflowSummary>) => {
+    res.json(await getWorkflowSummary(loadIssue));
   });
 
   app.use((_req: Request, res: Response) => {

@@ -75,6 +75,34 @@ describe('App', () => {
     expect(root.querySelector('[data-testid="workflow-status"]')?.textContent).toContain('READY');
   });
 
+  it('says the issue came from GitHub when the backend ingested it', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    http.expectOne('/api/workflow-summary').flush({ ...summary, source: 'GITHUB' });
+    await fixture.whenStable();
+
+    const banner = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="source-banner"]',
+    );
+    expect(banner?.textContent).toContain('Issue loaded from GitHub');
+    expect(banner?.textContent).toContain('still seeded');
+  });
+
+  it('explains the seed fallback when GitHub ingestion failed', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    http
+      .expectOne('/api/workflow-summary')
+      .flush({ ...summary, ingestionError: 'GitHub responded with status 403' });
+    await fixture.whenStable();
+
+    const banner = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="source-banner"]',
+    );
+    expect(banner?.textContent).toContain('showing seed data');
+    expect(banner?.textContent).toContain('GitHub responded with status 403');
+  });
+
   it('shows an error when the backend is unreachable', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

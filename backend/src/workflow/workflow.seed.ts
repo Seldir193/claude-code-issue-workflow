@@ -1,6 +1,7 @@
 import type { WorkflowSummary } from './workflow.types';
 
-// Phase 1 seed data. Nothing here has been executed: the workflow is READY,
+// Seed data. Since Phase 2 the issue block is only a fallback: it is replaced by
+// the GitHub issue when ingestion succeeds. Nothing here has been executed: the workflow is READY,
 // so tests are NOT_RUN and every verification check is PENDING.
 export const workflowSeed: WorkflowSummary = {
   id: 'wf-issue-3',
