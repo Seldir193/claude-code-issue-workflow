@@ -63,6 +63,14 @@ export interface VerificationReport {
   checks: VerificationCheck[];
 }
 
+export interface ImplementationReport {
+  outcome: string;
+  changedFileCount: number;
+  passedTestCount: number;
+  verifiedCheckCount: number;
+  conclusion: string;
+}
+
 export interface WorkflowSummary {
   id: string;
   status: WorkflowStatus;
@@ -77,4 +85,5 @@ export interface WorkflowSummary {
   filesChanged: FileChange[];
   testResults: TestResults;
   verification: VerificationReport;
+  implementationReport: ImplementationReport;
 }

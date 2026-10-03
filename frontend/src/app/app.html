@@ -136,6 +136,32 @@
             }
           </ul>
         </section>
+
+        <section class="card card--wide card--report" aria-labelledby="report-h">
+          <div class="row">
+            <div>
+              <p class="eyebrow">Final engineering evidence</p>
+              <h2 id="report-h">Implementation Report</h2>
+            </div>
+            <span class="chip chip--complete">COMPLETE</span>
+          </div>
+          <p class="report-outcome">{{ wf.implementationReport.outcome }}</p>
+          <div class="report-grid">
+            <div class="report-metric">
+              <strong>{{ wf.implementationReport.changedFileCount }}</strong>
+              <span>files changed</span>
+            </div>
+            <div class="report-metric">
+              <strong>{{ wf.implementationReport.passedTestCount }}</strong>
+              <span>tests passed</span>
+            </div>
+            <div class="report-metric">
+              <strong>{{ wf.implementationReport.verifiedCheckCount }}</strong>
+              <span>checks verified</span>
+            </div>
+          </div>
+          <p class="report-conclusion">{{ wf.implementationReport.conclusion }}</p>
+        </section>
       </div>
     }
   }

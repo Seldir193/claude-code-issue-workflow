@@ -31,6 +31,13 @@ const summary: WorkflowSummary = {
     summary: 'Verified checks.',
     checks: [{ orderStatus: 'SHIPPED', expected: 'BLOCKED', status: 'VERIFIED' }],
   },
+  implementationReport: {
+    outcome: 'Issue #3 resolved',
+    changedFileCount: 2,
+    passedTestCount: 7,
+    verifiedCheckCount: 4,
+    conclusion: 'Bounded fix verified.',
+  },
 };
 
 describe('App', () => {
@@ -70,9 +77,14 @@ describe('App', () => {
       'Files Changed',
       'Test Results',
       'Verification Report',
+      'Implementation Report',
     ]);
     expect(root.textContent).toContain('Order cancellation remains enabled after shipment');
     expect(root.querySelector('[data-testid="workflow-status"]')?.textContent).toContain('COMPLETE');
+    expect(root.textContent).toContain('2');
+    expect(root.textContent).toContain('7');
+    expect(root.textContent).toContain('4');
+    expect(root.textContent).toContain('Bounded fix verified.');
   });
 
   it('says the issue came from GitHub when the backend ingested it', async () => {

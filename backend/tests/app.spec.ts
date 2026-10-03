@@ -73,6 +73,12 @@ describe('GET /api/workflow-summary', () => {
     expect(summary.plan.every((step) => step.status === 'DONE')).toBe(true);
     expect(summary.filesChanged.every((file) => file.status === 'CHANGED')).toBe(true);
     expect(summary.verification.checks.every((check) => check.status === 'VERIFIED')).toBe(true);
+    expect(summary.implementationReport).toMatchObject({
+      outcome: 'Issue #3 resolved',
+      changedFileCount: 2,
+      passedTestCount: 7,
+      verifiedCheckCount: 4,
+    });
   });
 
   it('describes the expected outcome for every order status', async () => {

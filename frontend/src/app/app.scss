@@ -198,3 +198,57 @@
     color: var(--bad);
   }
 }
+
+.card--report {
+  border-color: color-mix(in srgb, var(--ok) 38%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--ok) 9%, transparent), transparent 42%),
+    var(--surface);
+}
+
+.report-outcome {
+  margin-top: 0.6rem !important;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+
+  @media (max-width: 36rem) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.report-metric {
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+
+  strong {
+    display: block;
+    color: var(--ok);
+    font-family: var(--mono);
+    font-size: 1.55rem;
+    line-height: 1.1;
+  }
+
+  span {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.report-conclusion {
+  margin-bottom: 0 !important;
+  color: var(--muted);
+}

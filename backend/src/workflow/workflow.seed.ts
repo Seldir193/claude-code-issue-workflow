@@ -86,4 +86,12 @@ export const workflowSeed: WorkflowSummary = {
       { orderStatus: 'CANCELLED', expected: 'BLOCKED', status: 'VERIFIED' },
     ],
   },
+  implementationReport: {
+    outcome: 'Issue #3 resolved',
+    changedFileCount: 2,
+    passedTestCount: 7,
+    verifiedCheckCount: 4,
+    conclusion:
+      'A bounded two-file change removed SHIPPED from the cancellation allow-list and added regression coverage without changing unrelated behavior.',
+  },
 };

@@ -1,35 +1,46 @@
 # Claude Code in Action: Issue-to-Implementation Workflow
 
-A small portfolio project that demonstrates a complete issue-driven maintenance loop:
+A small portfolio project that demonstrates a complete, bounded maintenance loop:
 
 ```
 GitHub Issue -> Codebase Analysis -> Implementation Plan -> Targeted Code Change
              -> Focused Tests -> Verification -> Implementation Report
 ```
 
-**Status: Phase 3 complete.** Issue #3 is ingested from the real GitHub Issues API, the order-cancellation defect has been fixed in `demo-target`, regression coverage was added, and the dashboard reports the completed implementation and verification evidence.
+**Status: complete.** The backend reads GitHub Issue #3, the demo codebase contains the real verified fix, and the Angular dashboard presents the implementation evidence in one place.
+
+![Workflow dashboard](docs/dashboard.png)
+
+## What this project proves
+
+- Real GitHub issue ingestion with native `fetch`
+- Codebase exploration before editing
+- A small implementation plan before the fix
+- A bounded two-file code change
+- Regression tests for the reported defect
+- Typecheck, backend/frontend regression checks and CI
+- Verification of expected behavior
+- A typed implementation report for recruiter-readable evidence
 
 ## Architecture
 
 | Area | Stack | Role |
 | --- | --- | --- |
-| `frontend/` | Angular, TypeScript, SCSS | Dashboard for issue context, analysis, plan, changed files, tests and verification. |
-| `backend/` | Node.js, Express, TypeScript | GitHub issue ingestion plus typed `GET /api/workflow-summary`. |
-| `demo-target/` | TypeScript, Vitest | Tiny order service changed by Issue #3. |
+| `frontend/` | Angular, TypeScript, SCSS | Displays repository context, issue, analysis, plan, changes, tests, verification and implementation report. |
+| `backend/` | Node.js, Express, TypeScript | Reads Issue #3 from GitHub and exposes the typed workflow summary. |
+| `demo-target/` | TypeScript, Vitest | Small order service changed by the issue workflow. |
 
-The workflow types live in `backend/src/workflow/workflow.types.ts`. The frontend keeps the matching display contract in `frontend/src/app/workflow/workflow.types.ts`.
+See [docs/architecture.md](docs/architecture.md) for the Mermaid diagrams.
 
 ## Issue #3 result
 
-The root cause was a single allow-list:
+Root cause:
 
 ```ts
 const CANCELLABLE_STATUSES = ['NEW', 'PROCESSING', 'SHIPPED'];
 ```
 
-`SHIPPED` was removed, so only `NEW` and `PROCESSING` remain cancellable. Regression tests now prove that both `canCancel` and `cancelOrder` reject shipped orders.
-
-Verified behavior:
+`SHIPPED` was removed. Regression coverage now verifies both `canCancel` and `cancelOrder` reject shipped orders.
 
 | Status | Cancel |
 | --- | --- |
@@ -38,39 +49,56 @@ Verified behavior:
 | `SHIPPED` | blocked |
 | `CANCELLED` | blocked |
 
-The focused `demo-target` verification passes **7/7 tests** and TypeScript typecheck.
+Implementation evidence shown by the dashboard:
+
+- **2** functional files changed
+- **7/7** demo-target tests passed
+- **4/4** cancellation outcomes verified
+- TypeScript typecheck passed
+- Backend and frontend regression suites passed
+- GitHub Actions passed
 
 ## GitHub ingestion
 
-The backend reads exactly `Seldir193/claude-code-issue-workflow#3` with native `fetch`. When ingestion succeeds, `source` is `GITHUB`. If GitHub is unavailable, fallback issue metadata is returned with `source: SEED` and an `ingestionError`; the completed Phase 3 implementation record remains available.
+The backend reads `Seldir193/claude-code-issue-workflow#3`. When the API succeeds, `source` is `GITHUB`. If GitHub is unavailable, fallback issue metadata is returned with `source: SEED` and an `ingestionError`; the completed implementation record remains visible.
 
-Tests inject fake fetch/load functions, so automated tests do not depend on the real network.
+Automated tests inject fake fetch/load functions, so tests do not depend on the live network.
 
-## Commands
+## Run locally
 
 Requires Node.js 24 and npm.
 
 ```bash
-# Backend
+# Terminal 1
 cd backend
 npm install
+npm run dev
+
+# Terminal 2
+cd frontend
+npm install
+npm start
+```
+
+Open `http://localhost:4200`.
+
+Full verification:
+
+```bash
+cd backend
 npm run lint
 npm test
 npm run build
 
-# Frontend
-cd frontend
-npm install
+cd ../frontend
 npm test -- --watch=false
 npm run build
 
-# Demo target
-cd demo-target
-npm install
+cd ../demo-target
 npm test
 npm run typecheck
 
-# Containers
+cd ..
 docker compose up --build
 ```
 
@@ -78,8 +106,6 @@ CI runs backend lint/test/build, frontend test/build, and demo-target typecheck/
 
 ## Scope and non-goals
 
-Implemented through Phase 3: real GitHub issue ingestion, bounded codebase analysis, a minimal targeted fix, regression testing, verification reporting, Docker and CI.
+This repository is deliberately bounded. It does not implement arbitrary repository execution, authentication, a database, queues, Kubernetes, subscriptions or multi-agent orchestration.
 
-Not included: Claude API integration, arbitrary repository execution, authentication, databases, queues, Kubernetes, subscriptions or multi-agent orchestration.
-
-See [docs/learning-map.md](docs/learning-map.md) for the portfolio learning map.
+See [docs/learning-map.md](docs/learning-map.md) for how each phase maps to the Claude Code / issue-driven engineering skills demonstrated here.
