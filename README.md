@@ -31,7 +31,7 @@ The seed workflow is `READY`, not `COMPLETE`. Test results are `NOT_RUN` and eve
 
 `demo-target/src/order-service.ts` models orders with the statuses `NEW`, `PROCESSING`, `SHIPPED` and `CANCELLED`. It contains a **deliberate bug**: `SHIPPED` orders can still be cancelled. This is Issue #3, "Order cancellation remains enabled after shipment", and it is left in place so a later workflow run has something real to fix. See [demo-target/README.md](demo-target/README.md).
 
-The baseline tests pass. The `SHIPPED -> blocked` expectation is only an `it.todo` (a future verification criterion), not a passing test.
+The baseline tests pass. The suite has no `SHIPPED` case: the `SHIPPED -> blocked` expectation exists only as a future verification criterion in the seed data, not as a passing test.
 
 ## Commands
 

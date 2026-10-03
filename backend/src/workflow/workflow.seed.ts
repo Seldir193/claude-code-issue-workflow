@@ -37,7 +37,7 @@ export const workflowSeed: WorkflowSummary = {
       {
         file: 'tests/order-service.spec.ts',
         symbol: 'canCancel suite',
-        note: 'Covers NEW, PROCESSING and CANCELLED. SHIPPED is only a todo.',
+        note: 'Covers NEW, PROCESSING and CANCELLED. SHIPPED has no test yet.',
       },
     ],
   },
@@ -57,7 +57,7 @@ export const workflowSeed: WorkflowSummary = {
     {
       order: 3,
       title: 'Add regression test',
-      detail: 'Replace the SHIPPED todo with an assertion that cancellation is blocked.',
+      detail: 'Add a SHIPPED case asserting that cancellation is blocked.',
       status: 'PENDING',
     },
   ],
