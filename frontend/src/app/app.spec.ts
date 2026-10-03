@@ -6,7 +6,7 @@ import type { WorkflowSummary } from './workflow/workflow.types';
 
 const summary: WorkflowSummary = {
   id: 'wf-test',
-  status: 'READY',
+  status: 'COMPLETE',
   source: 'SEED',
   repository: {
     name: 'demo-target',
@@ -23,13 +23,13 @@ const summary: WorkflowSummary = {
     labels: ['bug'],
   },
   analysis: { summary: 'Analysis summary.', findings: [{ file: 'a.ts', symbol: 's', note: 'n' }] },
-  plan: [{ order: 1, title: 'Locate cancellation rule', detail: 'd', status: 'PENDING' }],
-  filesChanged: [{ path: 'src/order-service.ts', reason: 'r', status: 'PLANNED' }],
-  testResults: { status: 'NOT_RUN', command: 'npm test', note: 'Not run.' },
+  plan: [{ order: 1, title: 'Locate cancellation rule', detail: 'd', status: 'DONE' }],
+  filesChanged: [{ path: 'src/order-service.ts', reason: 'r', status: 'CHANGED' }],
+  testResults: { status: 'PASSED', command: 'npm test', note: '7 tests passed.' },
   verification: {
-    status: 'PENDING',
-    summary: 'Pending checks.',
-    checks: [{ orderStatus: 'SHIPPED', expected: 'BLOCKED', status: 'PENDING' }],
+    status: 'VERIFIED',
+    summary: 'Verified checks.',
+    checks: [{ orderStatus: 'SHIPPED', expected: 'BLOCKED', status: 'VERIFIED' }],
   },
 };
 
@@ -72,7 +72,7 @@ describe('App', () => {
       'Verification Report',
     ]);
     expect(root.textContent).toContain('Order cancellation remains enabled after shipment');
-    expect(root.querySelector('[data-testid="workflow-status"]')?.textContent).toContain('READY');
+    expect(root.querySelector('[data-testid="workflow-status"]')?.textContent).toContain('COMPLETE');
   });
 
   it('says the issue came from GitHub when the backend ingested it', async () => {
@@ -85,7 +85,7 @@ describe('App', () => {
       '[data-testid="source-banner"]',
     );
     expect(banner?.textContent).toContain('Issue loaded from GitHub');
-    expect(banner?.textContent).toContain('still seeded');
+    expect(banner?.textContent).toContain('completed Phase 3');
   });
 
   it('explains the seed fallback when GitHub ingestion failed', async () => {
@@ -99,7 +99,7 @@ describe('App', () => {
     const banner = (fixture.nativeElement as HTMLElement).querySelector(
       '[data-testid="source-banner"]',
     );
-    expect(banner?.textContent).toContain('showing seed data');
+    expect(banner?.textContent).toContain('showing fallback issue data');
     expect(banner?.textContent).toContain('GitHub responded with status 403');
   });
 

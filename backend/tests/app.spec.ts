@@ -34,10 +34,10 @@ describe('GET /api/workflow-summary', () => {
     return response.body as WorkflowSummary;
   };
 
-  it('returns the GitHub issue in READY state', async () => {
+  it('returns the GitHub issue with the completed workflow', async () => {
     const summary = await load();
 
-    expect(summary.status).toBe('READY');
+    expect(summary.status).toBe('COMPLETE');
     expect(summary.source).toBe('GITHUB');
     expect(summary.issue).toEqual(githubIssue);
     expect(summary).not.toHaveProperty('ingestionError');
@@ -66,13 +66,13 @@ describe('GET /api/workflow-summary', () => {
     ]);
   });
 
-  it('does not claim any work has run', async () => {
+  it('reports the completed implementation evidence', async () => {
     const summary = await load();
 
-    expect(summary.testResults.status).toBe('NOT_RUN');
-    expect(summary.plan.every((step) => step.status === 'PENDING')).toBe(true);
-    expect(summary.filesChanged.every((file) => file.status === 'PLANNED')).toBe(true);
-    expect(summary.verification.checks.every((check) => check.status === 'PENDING')).toBe(true);
+    expect(summary.testResults.status).toBe('PASSED');
+    expect(summary.plan.every((step) => step.status === 'DONE')).toBe(true);
+    expect(summary.filesChanged.every((file) => file.status === 'CHANGED')).toBe(true);
+    expect(summary.verification.checks.every((check) => check.status === 'VERIFIED')).toBe(true);
   });
 
   it('describes the expected outcome for every order status', async () => {

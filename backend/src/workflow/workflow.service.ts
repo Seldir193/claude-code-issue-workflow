@@ -2,7 +2,7 @@ import { fetchIssue, type IssueRef } from '../github/github.client';
 import { workflowSeed } from './workflow.seed';
 import type { IssueInfo, WorkflowSummary } from './workflow.types';
 
-// Phase 2 ingests exactly one issue. Everything else in the summary is still seeded.
+// GitHub supplies issue metadata; the rest is the recorded Phase 3 execution result.
 export const WORKFLOW_ISSUE: IssueRef = {
   owner: 'Seldir193',
   repo: 'claude-code-issue-workflow',
@@ -14,7 +14,7 @@ export type IssueLoader = () => Promise<IssueInfo>;
 export const loadIssueFromGitHub: IssueLoader = () =>
   fetchIssue(WORKFLOW_ISSUE, { token: process.env.GITHUB_TOKEN });
 
-// Never rejects: if GitHub is unavailable the seeded issue is served and labelled as such.
+// Never rejects: if GitHub is unavailable fallback issue metadata is served and labelled as such.
 export async function getWorkflowSummary(loadIssue: IssueLoader): Promise<WorkflowSummary> {
   try {
     return { ...workflowSeed, source: 'GITHUB', issue: await loadIssue() };

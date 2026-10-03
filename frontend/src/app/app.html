@@ -26,14 +26,14 @@
       @let wf = s.summary;
       <p class="banner" data-testid="source-banner">
         @if (wf.source === 'GITHUB') {
-          Issue loaded from GitHub (<code>{{ wf.source }}</code>). Analysis, plan, files and
-          verification are still seeded, and nothing below has been executed yet.
+          Issue loaded from GitHub (<code>{{ wf.source }}</code>). The workflow below records the
+          completed Phase 3 implementation, tests and verification.
         } @else {
-          GitHub issue unavailable, showing seed data (<code>{{ wf.source }}</code>).
+          GitHub issue unavailable, showing fallback issue data (<code>{{ wf.source }}</code>).
           @if (wf.ingestionError) {
             {{ wf.ingestionError }}.
           }
-          Nothing below has been executed yet.
+          The completed Phase 3 implementation record is still available below.
         }
       </p>
 

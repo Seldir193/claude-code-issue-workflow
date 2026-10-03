@@ -1,57 +1,66 @@
 # Claude Code in Action: Issue-to-Implementation Workflow
 
-A small scaffold that shows how a GitHub issue becomes a verified code change:
+A small portfolio project that demonstrates a complete issue-driven maintenance loop:
 
 ```
 GitHub Issue -> Codebase Analysis -> Implementation Plan -> Targeted Code Change
-             -> Tests -> Verification -> Implementation Report
+             -> Focused Tests -> Verification -> Implementation Report
 ```
 
-**Status: Phase 2 (GitHub issue ingestion).** The backend now reads Issue #3 from the real GitHub Issues API and feeds its number, title, body, state and labels into the dashboard. Analysis, implementation plan, expected files and verification criteria remain deliberately seeded, and no code is changed automatically yet.
-
-> **Later phases** add bounded Claude Code execution against `demo-target`, real test execution results and the final verification report.
+**Status: Phase 3 complete.** Issue #3 is ingested from the real GitHub Issues API, the order-cancellation defect has been fixed in `demo-target`, regression coverage was added, and the dashboard reports the completed implementation and verification evidence.
 
 ## Architecture
 
-| Area           | Stack                              | Role                                                              |
-| -------------- | ---------------------------------- | ----------------------------------------------------------------- |
-| `frontend/`    | Angular (standalone), TypeScript, SCSS | Dashboard. Fetches `/api/workflow-summary`; layout works down to 325px. |
-| `backend/`     | Node.js, Express, TypeScript       | `GET /api/health`, GitHub issue ingestion and typed `GET /api/workflow-summary`. |
-| `demo-target/` | TypeScript, Vitest                 | Order cancellation rules the workflow will operate on.            |
+| Area | Stack | Role |
+| --- | --- | --- |
+| `frontend/` | Angular, TypeScript, SCSS | Dashboard for issue context, analysis, plan, changed files, tests and verification. |
+| `backend/` | Node.js, Express, TypeScript | GitHub issue ingestion plus typed `GET /api/workflow-summary`. |
+| `demo-target/` | TypeScript, Vitest | Tiny order service changed by Issue #3. |
 
-The dashboard sections are Repository, Issue, Analysis, Implementation Plan, Files Changed, Test Results and Verification Report. In dev, the Angular server proxies `/api` to the backend; in Docker, nginx does.
+The workflow types live in `backend/src/workflow/workflow.types.ts`. The frontend keeps the matching display contract in `frontend/src/app/workflow/workflow.types.ts`.
 
-The workflow types live in `backend/src/workflow/workflow.types.ts`. `frontend/src/app/workflow/workflow.types.ts` is a copy; keep the two in sync until a shared package is worth it.
+## Issue #3 result
 
-### Live issue data is not an implementation result
+The root cause was a single allow-list:
 
-When GitHub ingestion succeeds, `source` is `GITHUB` and only the issue block is live. The workflow remains `READY`, test results remain `NOT_RUN`, and every plan step and verification check stays `PENDING`. If GitHub is unavailable, the backend returns the seeded issue with `source: SEED` and an `ingestionError`; the dashboard makes that fallback explicit.
+```ts
+const CANCELLABLE_STATUSES = ['NEW', 'PROCESSING', 'SHIPPED'];
+```
 
-## The demo target and its intentional bug
+`SHIPPED` was removed, so only `NEW` and `PROCESSING` remain cancellable. Regression tests now prove that both `canCancel` and `cancelOrder` reject shipped orders.
 
-`demo-target/src/order-service.ts` models orders with the statuses `NEW`, `PROCESSING`, `SHIPPED` and `CANCELLED`. It contains a **deliberate bug**: `SHIPPED` orders can still be cancelled. This is Issue #3, "Order cancellation remains enabled after shipment", and it is left in place so a later workflow run has something real to fix. See [demo-target/README.md](demo-target/README.md).
+Verified behavior:
 
-The baseline tests pass. The suite has no `SHIPPED` case: the `SHIPPED -> blocked` expectation exists only as a future verification criterion in the seed data, not as a passing test.
+| Status | Cancel |
+| --- | --- |
+| `NEW` | allowed |
+| `PROCESSING` | allowed |
+| `SHIPPED` | blocked |
+| `CANCELLED` | blocked |
+
+The focused `demo-target` verification passes **7/7 tests** and TypeScript typecheck.
+
+## GitHub ingestion
+
+The backend reads exactly `Seldir193/claude-code-issue-workflow#3` with native `fetch`. When ingestion succeeds, `source` is `GITHUB`. If GitHub is unavailable, fallback issue metadata is returned with `source: SEED` and an `ingestionError`; the completed Phase 3 implementation record remains available.
+
+Tests inject fake fetch/load functions, so automated tests do not depend on the real network.
 
 ## Commands
 
 Requires Node.js 24 and npm.
 
 ```bash
-# Backend (http://localhost:3000)
+# Backend
 cd backend
 npm install
-npm run dev        # watch mode
-npm test
 npm run lint
+npm test
 npm run build
-# Optional for higher GitHub API rate limits or private-repo access:
-# set GITHUB_TOKEN in the environment before starting the backend.
 
-# Frontend (http://localhost:4200, proxies /api to :3000)
+# Frontend
 cd frontend
 npm install
-npm start
 npm test -- --watch=false
 npm run build
 
@@ -61,23 +70,16 @@ npm install
 npm test
 npm run typecheck
 
-# Both services in containers (frontend on http://localhost:8080,
-# override with FRONTEND_PORT=<port>)
+# Containers
 docker compose up --build
 ```
 
-CI (`.github/workflows/ci.yml`) runs backend lint/test/build, frontend test/build, and the demo-target typecheck and tests.
+CI runs backend lint/test/build, frontend test/build, and demo-target typecheck/tests.
 
 ## Scope and non-goals
 
-In scope through Phase 2: the scaffold, real ingestion of the single bounded GitHub Issue #3, seeded analysis/planning data, tests, lint, Docker and CI.
+Implemented through Phase 3: real GitHub issue ingestion, bounded codebase analysis, a minimal targeted fix, regression testing, verification reporting, Docker and CI.
 
-Not in scope yet: Claude API or automated code execution, authentication, databases, queues, Kubernetes, subscriptions, multi-agent systems, or running arbitrary repositories.
+Not included: Claude API integration, arbitrary repository execution, authentication, databases, queues, Kubernetes, subscriptions or multi-agent orchestration.
 
-## Phase 3 and beyond
-
-- Bounded Claude Code execution against `demo-target` for Issue #3.
-- Focused test execution after the targeted edit.
-- Git diff review, real test results and verification fed back into the dashboard.
-
-See [docs/learning-map.md](docs/learning-map.md) for how the completed phases map to the workflow skills this project demonstrates.
+See [docs/learning-map.md](docs/learning-map.md) for the portfolio learning map.

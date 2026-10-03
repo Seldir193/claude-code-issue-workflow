@@ -1,37 +1,37 @@
 # demo-target
 
-A deliberately tiny TypeScript codebase that models order cancellation rules. It is the
-*target* the issue workflow analyses and (in a later phase) changes.
+A deliberately tiny TypeScript codebase that models order cancellation rules. It is the target used by the issue-to-implementation workflow.
 
-| Status       | Cancel should be | Baseline behaviour |
-| ------------ | ---------------- | ------------------ |
-| `NEW`        | allowed          | allowed            |
-| `PROCESSING` | allowed          | allowed            |
-| `SHIPPED`    | blocked          | **allowed (bug)**  |
-| `CANCELLED`  | blocked          | blocked            |
+| Status | Cancel should be | Current behavior |
+| --- | --- | --- |
+| `NEW` | allowed | allowed |
+| `PROCESSING` | allowed | allowed |
+| `SHIPPED` | blocked | blocked |
+| `CANCELLED` | blocked | blocked |
 
-## Intentional bug
+## Issue #3 fix
 
-`src/order-service.ts` lists `SHIPPED` among the cancellable statuses. This is on purpose:
-it is the defect described by seed issue #3, "Order cancellation remains enabled after
-shipment". Do not fix it by hand; a later workflow run is meant to locate the rule,
-update the guard, and add the regression test.
+Issue #3 reported that shipped orders could still be cancelled. The root cause was `SHIPPED` being present in `CANCELLABLE_STATUSES`.
 
-The baseline test suite passes and has no `SHIPPED` case. "SHIPPED -> cancel blocked"
-exists in Phase 1 only as a verification criterion in the workflow seed data.
+The fix removes `SHIPPED` from that allow-list. Regression tests verify both:
 
-To see the bug:
+- `canCancel({ status: 'SHIPPED' })` returns `false`.
+- `cancelOrder({ status: 'SHIPPED' })` throws `OrderCancellationError`.
+
+The suite now contains 7 passing tests.
+
+To verify the corrected behavior directly:
 
 ```bash
-npx tsx -e "import('./src/order-service.ts').then(m => process.stdout.write(String(m.canCancel({ id: 'o1', status: 'SHIPPED' })) + '\n'))"
+npx tsx -e "import('./src/order-service.ts').then(m => process.stdout.write(String(m.canCancel({ id: 'o1', status: 'SHIPPED' })) + '\\n'))"
 ```
 
-It prints `true`; after the fix it must print `false`.
+It prints `false`.
 
 ## Commands
 
 ```bash
 npm install
-npm test          # vitest run
-npm run typecheck # tsc --noEmit
+npm test
+npm run typecheck
 ```

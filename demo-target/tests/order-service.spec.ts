@@ -9,8 +9,6 @@ import {
 
 const orderWith = (status: OrderStatus): Order => ({ id: 'order-1', status });
 
-// Baseline coverage only. The SHIPPED case is deliberately absent: it is the
-// regression test a later workflow run adds when fixing issue #3.
 describe('canCancel', () => {
   it('allows cancelling a NEW order', () => {
     expect(canCancel(orderWith('NEW'))).toBe(true);
@@ -18,6 +16,11 @@ describe('canCancel', () => {
 
   it('allows cancelling a PROCESSING order', () => {
     expect(canCancel(orderWith('PROCESSING'))).toBe(true);
+  });
+
+  // Regression test for issue #3.
+  it('blocks cancelling a SHIPPED order', () => {
+    expect(canCancel(orderWith('SHIPPED'))).toBe(false);
   });
 
   it('blocks cancelling a CANCELLED order', () => {
@@ -33,6 +36,11 @@ describe('cancelOrder', () => {
 
     expect(cancelled).toEqual({ id: 'order-1', status: 'CANCELLED' });
     expect(order.status).toBe('NEW');
+  });
+
+  // Regression test for issue #3.
+  it('throws when the order is SHIPPED', () => {
+    expect(() => cancelOrder(orderWith('SHIPPED'))).toThrow(OrderCancellationError);
   });
 
   it('throws when the order is already CANCELLED', () => {

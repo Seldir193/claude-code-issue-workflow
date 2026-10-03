@@ -1,11 +1,8 @@
 import type { WorkflowSummary } from './workflow.types';
 
-// Seed data. Since Phase 2 the issue block is only a fallback: it is replaced by
-// the GitHub issue when ingestion succeeds. Nothing here has been executed: the workflow is READY,
-// so tests are NOT_RUN and every verification check is PENDING.
 export const workflowSeed: WorkflowSummary = {
   id: 'wf-issue-3',
-  status: 'READY',
+  status: 'COMPLETE',
   source: 'SEED',
   repository: {
     name: 'demo-target',
@@ -23,22 +20,22 @@ export const workflowSeed: WorkflowSummary = {
   },
   analysis: {
     summary:
-      'The cancellation rule lives in a single allow-list. SHIPPED is part of that list, so shipped orders pass the guard.',
+      'The cancellation rule used one allow-list. SHIPPED was incorrectly included, so both canCancel and cancelOrder treated shipped orders as cancellable.',
     findings: [
       {
         file: 'src/order-service.ts',
         symbol: 'CANCELLABLE_STATUSES',
-        note: 'Allow-list includes SHIPPED alongside NEW and PROCESSING.',
+        note: 'Root cause confirmed: SHIPPED was in the allow-list. The list now contains only NEW and PROCESSING.',
       },
       {
         file: 'src/order-service.ts',
         symbol: 'canCancel',
-        note: 'Only reads the allow-list, so fixing the list fixes cancelOrder too.',
+        note: 'canCancel reads only the allow-list, so the targeted list change also protects cancelOrder.',
       },
       {
         file: 'tests/order-service.spec.ts',
-        symbol: 'canCancel suite',
-        note: 'Covers NEW, PROCESSING and CANCELLED. SHIPPED has no test yet.',
+        symbol: 'SHIPPED regression coverage',
+        note: 'Regression tests now verify both canCancel and cancelOrder block SHIPPED orders.',
       },
     ],
   },
@@ -46,47 +43,47 @@ export const workflowSeed: WorkflowSummary = {
     {
       order: 1,
       title: 'Locate cancellation rule',
-      detail: 'Confirm CANCELLABLE_STATUSES is the only place the rule is defined.',
-      status: 'PENDING',
+      detail: 'Confirmed CANCELLABLE_STATUSES is the single rule used by canCancel and cancelOrder.',
+      status: 'DONE',
     },
     {
       order: 2,
       title: 'Update shipped-order guard',
-      detail: 'Remove SHIPPED from the allow-list so canCancel returns false.',
-      status: 'PENDING',
+      detail: 'Removed SHIPPED from the allow-list while preserving NEW and PROCESSING.',
+      status: 'DONE',
     },
     {
       order: 3,
       title: 'Add regression test',
-      detail: 'Add a SHIPPED case asserting that cancellation is blocked.',
-      status: 'PENDING',
+      detail: 'Added SHIPPED regression coverage for canCancel and cancelOrder.',
+      status: 'DONE',
     },
   ],
   filesChanged: [
     {
       path: 'src/order-service.ts',
-      reason: 'Holds the cancellation allow-list.',
-      status: 'PLANNED',
+      reason: 'Removed SHIPPED from the cancellation allow-list.',
+      status: 'CHANGED',
     },
     {
       path: 'tests/order-service.spec.ts',
-      reason: 'Needs the SHIPPED regression test.',
-      status: 'PLANNED',
+      reason: 'Added regression coverage proving SHIPPED cancellation is blocked.',
+      status: 'CHANGED',
     },
   ],
   testResults: {
-    status: 'NOT_RUN',
-    command: 'npm test',
-    note: 'No workflow run has executed yet, so there are no results to report.',
+    status: 'PASSED',
+    command: 'npm test && npm run typecheck',
+    note: 'Vitest passed 7/7 tests and the TypeScript typecheck completed successfully.',
   },
   verification: {
-    status: 'PENDING',
-    summary: 'Checks to confirm once the fix has been applied and the tests have run.',
+    status: 'VERIFIED',
+    summary: 'Issue #3 is fixed and every expected cancellation outcome is verified.',
     checks: [
-      { orderStatus: 'NEW', expected: 'ALLOWED', status: 'PENDING' },
-      { orderStatus: 'PROCESSING', expected: 'ALLOWED', status: 'PENDING' },
-      { orderStatus: 'SHIPPED', expected: 'BLOCKED', status: 'PENDING' },
-      { orderStatus: 'CANCELLED', expected: 'BLOCKED', status: 'PENDING' },
+      { orderStatus: 'NEW', expected: 'ALLOWED', status: 'VERIFIED' },
+      { orderStatus: 'PROCESSING', expected: 'ALLOWED', status: 'VERIFIED' },
+      { orderStatus: 'SHIPPED', expected: 'BLOCKED', status: 'VERIFIED' },
+      { orderStatus: 'CANCELLED', expected: 'BLOCKED', status: 'VERIFIED' },
     ],
   },
 };

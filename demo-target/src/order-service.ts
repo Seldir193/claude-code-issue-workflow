@@ -12,9 +12,7 @@ export class OrderCancellationError extends Error {
   }
 }
 
-// INTENTIONAL DEMO BUG (issue #3): SHIPPED must not be cancellable.
-// It is left in place so a later workflow run can find and fix it. See README.md.
-const CANCELLABLE_STATUSES: readonly OrderStatus[] = ['NEW', 'PROCESSING', 'SHIPPED'];
+const CANCELLABLE_STATUSES: readonly OrderStatus[] = ['NEW', 'PROCESSING'];
 
 export function canCancel(order: Order): boolean {
   return CANCELLABLE_STATUSES.includes(order.status);
